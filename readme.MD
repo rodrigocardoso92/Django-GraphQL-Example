@@ -4,9 +4,20 @@
 Este é um simples projeto de utilização do GraphQL com o Django.
 
 Para interagir com o sistema, foram criadas duas entidades, uma de usuario e outra de postagens do usuario
-  - Usuario
-    - 
 
+## Entidades
+  - Usuario
+    - username
+    - email
+    - bio
+    - password
+
+  - Post
+    - title
+    - content
+    - user foreign key
+
+## Iniciando projeto
 
 Antes de iniciar o sistema, execute o seguinte comando para baixar as dependencias utilizadas no projeto:
 
