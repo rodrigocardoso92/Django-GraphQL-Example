@@ -25,6 +25,12 @@ Antes de iniciar o sistema, execute o seguinte comando para baixar as dependenci
 pip install -r requirements.txt
 ```
 
+Para configurar o banco de dados, execute os seguintes comandos:
+
+```
+python manage.py makemigrations
+python manage.py migrate
+```
 
 Para iniciar o sistema, execute:
 
