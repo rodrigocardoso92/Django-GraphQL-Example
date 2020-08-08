@@ -38,6 +38,21 @@ class CreateUser(graphene.Mutation):
     user_instance.save()
     return CreateUser(user=user_instance)
 
+class DeleteUser(graphene.Mutation):
+  id = graphene.UUID()
+  deleted = graphene.Boolean()
+  class Arguments:
+    id = graphene.UUID()
+  
+  user = graphene.Field(UserType)
+  @staticmethod
+  def mutate(cls, info, **kwargs):
+    user = User.objects.get(pk=kwargs.get('id'))
+
+    user.delete()
+    return DeleteUser(deleted=True)
+
+
 
 class Query(graphene.ObjectType):
   users = graphene.List(UserType)
@@ -52,3 +67,4 @@ class Query(graphene.ObjectType):
 
 class Mutation(graphene.ObjectType):
   create_user = CreateUser.Field()
+  delete_user = DeleteUser.Field()
