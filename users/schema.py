@@ -46,11 +46,33 @@ class DeleteUser(graphene.Mutation):
   
   user = graphene.Field(UserType)
   @staticmethod
-  def mutate(cls, info, **kwargs):
+  def mutate(self, info, **kwargs):
     user = User.objects.get(pk=kwargs.get('id'))
 
     user.delete()
     return DeleteUser(deleted=True)
+
+class UpdateUser(graphene.Mutation):
+  
+  class Arguments:
+    id = graphene.UUID()
+    user_input = UserInput(required=True)
+
+  user = graphene.Field(UserType)
+  @staticmethod
+  def mutate(self, info, user_input=None, **kwargs):
+    
+    user_instance = User.objects.get(pk=kwargs.get('id'))
+    if user_input.username:
+      user_instance.username = user_input.username
+    if user_input.email:
+      user_instance.email = user_input.email
+    if user_input.bio:
+      user_instance.bio = user_input.bio
+    if user_input.password:
+      user_instance.password = make_password(user_input.password)
+
+    return UpdateUser(user=user_instance)
 
 
 
@@ -68,3 +90,4 @@ class Query(graphene.ObjectType):
 class Mutation(graphene.ObjectType):
   create_user = CreateUser.Field()
   delete_user = DeleteUser.Field()
+  update_user = UpdateUser.Field()
