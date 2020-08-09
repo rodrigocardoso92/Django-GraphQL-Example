@@ -33,6 +33,24 @@ class CreatePost(graphene.Mutation):
     post_instance.save()
     return CreatePost(post=post_instance)
 
+class UpdatePost(graphene.Mutation):
+  class Arguments:
+    id = graphene.UUID()
+    post_input = PostInput(required=True)
+
+  post = graphene.Field(PostType)
+
+  @staticmethod
+  def mutate(self, info, post_input=None, **kwargs):
+
+    post_instance = Post.objects.get(pk=kwargs.get('id'))
+    if post_input.title:
+      post_instance.title = post_input.title
+    if post_input.content:
+      post_instance.content = post_input.content
+    
+    return UpdatePost(post=post_instance)
+
 class DeletePost(graphene.Mutation):
   id = graphene.UUID()
   deleted = graphene.Boolean()
@@ -61,3 +79,4 @@ class Query(graphene.ObjectType):
 class Mutation(graphene.ObjectType):
   create_post = CreatePost.Field()
   delete_post = DeletePost.Field()
+  update_post = UpdatePost.Field()
