@@ -1,4 +1,4 @@
-<img alt="GoStack" src="https://i0.wp.com/blog.knoldus.com/wp-content/uploads/2020/06/python-django.png?resize=1024%2C341&ssl=1" />
+<img alt="GoStack" src="https://miro.medium.com/max/700/1*jLrvxW83rre-25Nrhk-tww.png" />
 
 # Exemplo de utilização do GraphQL com DJANGO Framework
 
