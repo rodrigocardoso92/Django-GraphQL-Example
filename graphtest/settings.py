@@ -149,5 +149,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'deepBR', 'static')
+    os.path.join(BASE_DIR, 'graphtest', 'static')
 ]
