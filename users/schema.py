@@ -11,6 +11,8 @@ from users.models import User
 
 from users.resolvers import *
 
+from graphtest.errors import *
+
 
 
 class UserType(DjangoObjectType):
@@ -40,27 +42,27 @@ class CreateUser(graphene.Mutation):
       user_instance = resolve_create_user(user_input)
       return CreateUser(user=user_instance)
     else:
-      raise GraphQLError('DB Server not connected!')
+      raise db_connection_error()
 
 class DeleteUser(graphene.Mutation):
   id = graphene.UUID()
   deleted = graphene.Boolean()
   class Arguments:
     id = graphene.UUID()
-  
+
   user = graphene.Field(UserType)
-  
+
   @login_required
   def mutate(self, info, **kwargs):
     if test_db_connection(connections):
-      
+
       deleted = resolve_delete_user(kwargs)
       return DeleteUser(deleted=True)
     else:
-      raise GraphQLError('DB Server not connected!')
+      raise db_connection_error()
 
 class UpdateUser(graphene.Mutation):
-  
+
   class Arguments:
     id = graphene.UUID()
     user_input = UserInput(required=True)
@@ -71,9 +73,9 @@ class UpdateUser(graphene.Mutation):
     if test_db_connection(connections):
       user_instance = resolve_update_user(user_input, kwargs)
       return UpdateUser(user=user_instance)
-      
+
     else:
-      raise GraphQLError('DB Server not connected!')
+      raise db_connection_error()
 
 
 
@@ -85,13 +87,13 @@ class Query(graphene.ObjectType):
     if test_db_connection(connections):
       return User.objects.all()
     else:
-      raise GraphQLError('DB Server not connected!')
+      raise db_connection_error()
 
   def resolve_user_by_id(self, info, **kwargs):
     if test_db_connection(connections):
       return User.objects.get(pk=kwargs.get('id'))
     else:
-      raise GraphQLError('DB Server not connected!')
+      raise db_connection_error()
 
 
 class Mutation(graphene.ObjectType):

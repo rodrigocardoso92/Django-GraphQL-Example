@@ -27,8 +27,9 @@ Antes de iniciar o sistema, execute o seguinte comando para baixar as dependenci
 pip install -r requirements.txt
 ```
 
-Para configurar o banco de dados, execute os seguintes comandos:
+Crie uma database com as mesmas configuracoes apresentadas no arquivo <b>.env</b>
 
+Para configurar o banco de dados, execute os seguintes comandos:
 ```
 python manage.py makemigrations
 python manage.py migrate
@@ -46,3 +47,8 @@ http://127.0.0.1:8000/graphql
 ```
 
 Em seguida, basta seguir a documentação gerada pelo GraphQL para realizar as Queries e Mutations
+
+
+# OBS:
+
+POR SER UM PROJETO DE APRESENTACAO, NAO HA PROBLEMAS EM EXPOR O ARQUIVO <b>.env</b> MAS LEMBRE-SE, NUNCA EXPONHA O ARQUIVO EM PROJETOS REAIS!
