@@ -7,6 +7,8 @@ from users.models import User
 class UserType(DjangoObjectType):
   class Meta:
     model = User
+    # fields = ('id', 'username', 'email', 'created_at', 'updated_at',)
+    exclude = ('is_superuser', 'is_staff', 'date_joined', 'password', 'is_active')
 
 
 class UserInput(graphene.InputObjectType):
