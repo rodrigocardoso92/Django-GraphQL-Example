@@ -1,9 +1,16 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphene_django.views import GraphQLError
+from django.db import connections
+from graphql_jwt.decorators import login_required
 import uuid
+
+from graphtest.utils import test_db_connection
 
 from post.models import Post
 from users.models import User
+
+from post.resolvers import *
 
 class PostType(DjangoObjectType):
   class Meta:
@@ -20,18 +27,13 @@ class CreatePost(graphene.Mutation):
     post_input = PostInput(required=True)
 
   post = graphene.Field(PostType)
-
-  @staticmethod
+  @login_required
   def mutate(self, info, post_input=None):
-    user_instance = User.objects.get(pk=post_input.user_id)
-    post_instance = Post(
-      title = post_input.title,
-      content = post_input.content,
-      user_id = post_input.user_id
-    )
-
-    post_instance.save()
-    return CreatePost(post=post_instance)
+    if test_db_connection(connections):
+      post_instance = resolve_create_post(post_input)
+      return CreatePost(post=post_instance)
+    else:
+      raise GraphQLError('DB Server not connected!')
 
 class UpdatePost(graphene.Mutation):
   class Arguments:
@@ -40,16 +42,13 @@ class UpdatePost(graphene.Mutation):
 
   post = graphene.Field(PostType)
 
-  @staticmethod
+  @login_required
   def mutate(self, info, post_input=None, **kwargs):
-
-    post_instance = Post.objects.get(pk=kwargs.get('id'))
-    if post_input.title:
-      post_instance.title = post_input.title
-    if post_input.content:
-      post_instance.content = post_input.content
-    
-    return UpdatePost(post=post_instance)
+    if test_db_connection(connections): 
+      post_instance = resolve_update_post(post_input, kwargs)
+      return UpdatePost(post=post_instance)
+    else:
+      raise GraphQLError('DB Server not connected!')
 
 class DeletePost(graphene.Mutation):
   id = graphene.UUID()
@@ -58,22 +57,29 @@ class DeletePost(graphene.Mutation):
     id = graphene.UUID()
   
   post = graphene.Field(PostType)
-  @staticmethod
-  def mutate(cls, info, **kwargs):
-    post = Post.objects.get(pk=kwargs.get('id'))
 
-    post.delete()
-    return DeletePost(deleted=True)
+  @login_required
+  def mutate(self, info, **kwargs):
+    if test_db_connection(connections):      
+      deleted = resolve_delete_post(kwargs)
+      return DeletePost(deleted=deleted)
+      
+    else:
+      raise GraphQLError('DB Server not connected!')
 
 class Query(graphene.ObjectType):
   posts = graphene.List(PostType)
   post_by_id = graphene.Field(PostType, id=graphene.String())
 
   def resolve_posts(self, info, **kwargs):
-    return Post.objects.all()
+    if test_db_connection(connections):
+      return Post.objects.all()
+    raise GraphQLError('DB Server not connected!')
 
   def resolve_post_by_id(self, info, **kwargs):
-    return Post.objects.get(pk=kwargs.get('id'))
+    if test_db_connection(connections):
+      return Post.objects.get(pk=kwargs.get('id'))
+    raise GraphQLError('DB Server not connected!')
 
 
 class Mutation(graphene.ObjectType):

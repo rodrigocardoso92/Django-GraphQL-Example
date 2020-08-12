@@ -2,10 +2,16 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphene_django.views import GraphQLError
 from django.db import connections
-from django.contrib.auth.hashers import make_password, check_password
+from graphql_jwt.decorators import login_required
 import uuid
+
+from graphtest.utils import test_db_connection
+
 from users.models import User
-from users.utils import test_db_connection
+
+from users.resolvers import *
+
+
 
 class UserType(DjangoObjectType):
   class Meta:
@@ -31,17 +37,7 @@ class CreateUser(graphene.Mutation):
   def mutate(self, info, user_input=None):
 
     if test_db_connection(connections):
-      hashed_password = make_password(user_input.password)
-
-      user_instance = User(
-        id = uuid.uuid4(),
-        username = user_input.username,
-        email = user_input.email,
-        bio = user_input.bio,
-        password = hashed_password
-      )
-
-      user_instance.save()
+      user_instance = resolve_create_user(user_input)
       return CreateUser(user=user_instance)
     else:
       raise GraphQLError('DB Server not connected!')
@@ -53,16 +49,13 @@ class DeleteUser(graphene.Mutation):
     id = graphene.UUID()
   
   user = graphene.Field(UserType)
-  @staticmethod
+  
+  @login_required
   def mutate(self, info, **kwargs):
     if test_db_connection(connections):
-      if not info.context.user.is_anonymous:
-        user = User.objects.get(pk=kwargs.get('id'))
-
-        user.delete()
-        return DeleteUser(deleted=True)
-      else:
-        raise GraphQLError('You must be logged!')
+      
+      deleted = resolve_delete_user(kwargs)
+      return DeleteUser(deleted=True)
     else:
       raise GraphQLError('DB Server not connected!')
 
@@ -76,22 +69,9 @@ class UpdateUser(graphene.Mutation):
   @staticmethod
   def mutate(self, info, user_input=None, **kwargs):
     if test_db_connection(connections):
-      if not info.context.user.is_anonymous:
-        user_instance = User.objects.get(pk=kwargs.get('id'))
-        if user_input.username:
-          user_instance.username = user_input.username
-        if user_input.email:
-          user_instance.email = user_input.email
-        if user_input.bio:
-          user_instance.bio = user_input.bio
-        if user_input.password:
-          user_instance.password = make_password(user_input.password)
-
-        user_instance.save()
-
-        return UpdateUser(user=user_instance)
-      else:
-        raise GraphQLError('You must be logged!')
+      user_instance = resolve_update_user(user_input, kwargs)
+      return UpdateUser(user=user_instance)
+      
     else:
       raise GraphQLError('DB Server not connected!')
 

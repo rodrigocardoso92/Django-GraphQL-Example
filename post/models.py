@@ -9,14 +9,10 @@ def upload_to(instance, filename):
 
 # Create your models here.
 class Post(models.Model):
-  VISUALIZATION_CHOICES = (
-    ('1', 'Invisivel'),
-    ('2', 'Visivel')
-  )
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   title = models.CharField(max_length=100, null=False)
   content = models.TextField()
-  visualize = models.CharField(max_length=1, choices=VISUALIZATION_CHOICES, blank=False, null=False)
+  visualize = models.BooleanField(default=False)
   created_at = models.DateField(auto_now_add=True)
   updated_at = models.DateField(auto_now=True)
   user = models.ForeignKey(User, on_delete=models.CASCADE)
