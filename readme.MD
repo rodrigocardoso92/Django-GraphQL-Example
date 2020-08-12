@@ -1,4 +1,4 @@
-<img alt="GoStack" src="https://miro.medium.com/max/700/1*jLrvxW83rre-25Nrhk-tww.png" />
+<img alt="Django" src="https://miro.medium.com/max/700/1*jLrvxW83rre-25Nrhk-tww.png" />
 
 # Exemplo de utilização do GraphQL com DJANGO Framework
 
