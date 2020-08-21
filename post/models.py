@@ -1,11 +1,14 @@
 from django.db import models
 import uuid
 import os
+from datetime import datetime
 
 from users.models import User
 
 def upload_to(instance, filename):
-  return os.path.join('../tmp/imgs/%s/posts' % instance.user.id, filename)
+  filetype = filename.split('.')[-1]
+  return os.path.join('../tmp/%s/imgs/posts' % instance.user.id,
+                        str(hash(datetime.now())) + '.' + filename)
 
 # Create your models here.
 class Post(models.Model):
