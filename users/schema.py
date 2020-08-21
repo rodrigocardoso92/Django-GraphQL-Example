@@ -18,7 +18,6 @@ from graphtest.errors import *
 class UserType(DjangoObjectType):
   class Meta:
     model = User
-    # fields = ('id', 'username', 'email', 'created_at', 'updated_at',)
     exclude = ('is_superuser', 'is_staff', 'date_joined', 'password', 'is_active')
 
 
@@ -45,7 +44,7 @@ class CreateUser(graphene.Mutation):
       raise db_connection_error()
 
 class DeleteUser(graphene.Mutation):
-  id = graphene.UUID()
+
   deleted = graphene.Boolean()
   class Arguments:
     id = graphene.UUID()
@@ -55,8 +54,9 @@ class DeleteUser(graphene.Mutation):
   @login_required
   def mutate(self, info, **kwargs):
     if test_db_connection(connections):
+      logged_user_id = info.context.user.id
 
-      deleted = resolve_delete_user(kwargs)
+      deleted = resolve_delete_user(logged_user_id, kwargs)
       return DeleteUser(deleted=True)
     else:
       raise db_connection_error()
@@ -71,7 +71,8 @@ class UpdateUser(graphene.Mutation):
   @staticmethod
   def mutate(self, info, user_input=None, **kwargs):
     if test_db_connection(connections):
-      user_instance = resolve_update_user(user_input, kwargs)
+      logged_user_id = info.context.user.id
+      user_instance = resolve_update_user(logged_user_id, user_input, kwargs)
       return UpdateUser(user=user_instance)
 
     else:
