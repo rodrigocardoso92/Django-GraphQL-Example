@@ -30,8 +30,9 @@ class CreatePost(graphene.Mutation):
   @login_required
   def mutate(self, info, post_input=None):
     if test_db_connection(connections):
-      post_instance = resolve_create_post(post_input)
-      return CreatePost(post=post_instance)
+        user_id = info.context.user.id
+        post_instance = resolve_create_post(user_id, post_input)
+        return CreatePost(post=post_instance)
     else:
       raise GraphQLError('DB Server not connected!')
 
@@ -44,26 +45,28 @@ class UpdatePost(graphene.Mutation):
 
   @login_required
   def mutate(self, info, post_input=None, **kwargs):
-    if test_db_connection(connections): 
-      post_instance = resolve_update_post(post_input, kwargs)
+    if test_db_connection(connections):
+      user_id = info.context.user.id
+      post_instance = resolve_update_post(user_id, post_input, kwargs)
       return UpdatePost(post=post_instance)
     else:
       raise GraphQLError('DB Server not connected!')
 
 class DeletePost(graphene.Mutation):
-  id = graphene.UUID()
+
   deleted = graphene.Boolean()
   class Arguments:
     id = graphene.UUID()
-  
+
   post = graphene.Field(PostType)
 
   @login_required
   def mutate(self, info, **kwargs):
-    if test_db_connection(connections):      
-      deleted = resolve_delete_post(kwargs)
+    if test_db_connection(connections):
+      user = info.context.user
+      deleted = resolve_delete_post(user, kwargs)
       return DeletePost(deleted=deleted)
-      
+
     else:
       raise GraphQLError('DB Server not connected!')
 
